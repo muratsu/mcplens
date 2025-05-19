@@ -1,0 +1,62 @@
+name: PR Checks
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - .editorconfig
+      - '.idea/**'
+      - '.vscode/**'
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  prepare:
+    name: Prepare shared data for multi-platform compilation
+    runs-on: ubuntu-latest
+    outputs:
+      APP_VERSION: ${{ steps.APP_VERSION.outputs.APP_VERSION }}
+      COMMIT_TIMESTAMP: ${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}
+      APP_FULL_VERSION: ${{ steps.APP_FULL_VERSION.outputs.APP_FULL_VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: COMMIT_TIMESTAMP
+        run: echo "COMMIT_TIMESTAMP=$(git show -s --format=%ct ${{ github.sha }})" >> $GITHUB_OUTPUT
+      - id: APP_VERSION
+        run: echo "APP_VERSION=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+      - id: APP_FULL_VERSION
+        run: echo "APP_FULL_VERSION=${{ steps.APP_VERSION.outputs.APP_VERSION }}-pr.${{ steps.COMMIT_TIMESTAMP.outputs.COMMIT_TIMESTAMP }}" >> $GITHUB_OUTPUT
+
+  compile-and-test:
+    needs:
+      - prepare
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    uses: ./.github/workflows/compile-and-test.yml
+    with:
+      app-version: ${{ needs.prepare.outputs.APP_FULL_VERSION }}
+      distribution-channel: pr
+
+  dependabot:
+    permissions:
+      contents: write
+      pull-requests: write
+    needs:
+      - compile-and-test
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'muratsu/mcplens'
+    steps:
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --rebase "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
