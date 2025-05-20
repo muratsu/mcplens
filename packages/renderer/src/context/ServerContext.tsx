@@ -36,17 +36,6 @@ interface ServerContextType extends ServerState {
 // Create the context
 const ServerContext = createContext<ServerContextType | undefined>(undefined);
 
-// Preload script API access
-declare global {
-  interface Window {
-    getAllServers: () => Promise<ServerDetails[]>;
-    getServerById: (id: string) => Promise<ServerDetails>;
-    addServer: (server: Omit<ServerDetails, 'id'>) => Promise<ServerDetails>;
-    updateServer: (server: ServerDetails) => Promise<ServerDetails>;
-    deleteServer: (id: string) => Promise<boolean>;
-  }
-}
-
 // Reducer function
 function serverReducer(state: ServerState, action: ServerAction): ServerState {
   switch (action.type) {

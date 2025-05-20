@@ -50,12 +50,15 @@ export function ConfigurationAction({
 
       // Add to history
       addToHistory({
+        id: crypto.randomUUID(),
         type: "configuration",
         title: `Removed server ${server.name}`,
+        timestamp: new Date().toISOString(),
+        serverId: server.id,
+        status: "success",
         details: {
           action: "remove",
           server: server.url || `${server.command} ${server.args}`,
-          timestamp: new Date().toISOString(),
         },
       });
 
@@ -69,12 +72,15 @@ export function ConfigurationAction({
 
       // Add to history
       addToHistory({
+        id: crypto.randomUUID(),
         type: "configuration",
         title: `Failed to remove server ${server.name}`,
+        timestamp: new Date().toISOString(),
+        serverId: server.id,
+        status: "error",
         details: {
           action: "remove",
           server: server.url || `${server.command} ${server.args}`,
-          timestamp: new Date().toISOString(),
           error: "Operation failed",
         },
       });

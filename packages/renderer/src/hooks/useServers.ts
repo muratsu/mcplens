@@ -7,17 +7,6 @@ interface ServerConfig {
   url: string;
 }
 
-// Get the exposed functions from the preload script
-declare global {
-  interface Window {
-    getAllServers: () => Promise<ServerConfig[]>;
-    getServerById: (id: string) => Promise<ServerConfig>;
-    addServer: (server: Omit<ServerConfig, 'id'>) => Promise<ServerConfig>;
-    updateServer: (server: ServerConfig) => Promise<ServerConfig>;
-    deleteServer: (id: string) => Promise<boolean>;
-  }
-}
-
 const { getAllServers, getServerById, addServer, updateServer, deleteServer } = window;
 
 export function useServers() {
@@ -66,7 +55,7 @@ export function useServers() {
   const updateServerData = useCallback(async (serverData: ServerConfig) => {
     try {
       const updated = await updateServer(serverData);
-      setServers(prev => prev.map(server => 
+      setServers(prev => prev.map(server =>
         server.id === updated.id ? updated : server
       ));
       return updated;

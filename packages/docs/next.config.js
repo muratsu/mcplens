@@ -1,14 +1,14 @@
-import nextra from 'nextra';
+/** @type {import('next').NextConfig} */
+import nextra from "nextra";
 
-const withNextra = nextra({
-  theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.jsx',
-});
+const withNextra = nextra({});
 
-export default withNextra({
-  output: 'export',
-  basePath: '/docs',
+const nextConfig = {
+  // output: "export",
+  // basePath: "/docs",
   images: {
     unoptimized: true,
   },
-});
+};
+
+export default withNextra(nextConfig);

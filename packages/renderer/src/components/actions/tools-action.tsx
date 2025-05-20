@@ -173,93 +173,100 @@ export function ToolsAction({ server, addToHistory }: ToolsActionProps) {
     }));
   };
 
-  const executeTool = async (toolId: string) => {
-    const tool = tools?.find((t) => t.name === toolId);
-    if (!tool || !serverPort) return;
+  // const executeTool = async (toolId: string) => {
+  //   const tool = tools?.find((t) => t.name === toolId);
+  //   if (!tool || !serverPort) return;
 
-    setResults((prev) => ({
-      ...prev,
-      [toolId]: { loading: true },
-    }));
+  //   setResults((prev) => ({
+  //     ...prev,
+  //     [toolId]: { loading: true },
+  //   }));
 
-    try {
-      const response = await fetch(`http://localhost:${serverPort}/api/exec`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          serverDetails: {
-            name: server.name,
-            command: server.command,
-            args: server.args,
-            env: server.env || {},
-            transportType: server.transportType,
-          },
-          toolId,
-          inputs: formValues[toolId],
-        }),
-      });
+  //   try {
+  //     const response = await fetch(`http://localhost:${serverPort}/api/exec`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         serverDetails: {
+  //           name: server.name,
+  //           command: server.command,
+  //           args: server.args,
+  //           env: server.env || {},
+  //           transportType: server.transportType,
+  //         },
+  //         toolId,
+  //         inputs: formValues[toolId],
+  //       }),
+  //     });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to execute tool");
-      }
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || "Failed to execute tool");
+  //     }
 
-      const result = await response.json();
+  //     const result = await response.json();
 
-      setResults((prev) => ({
-        ...prev,
-        [toolId]: { data: result, loading: false },
-      }));
+  //     setResults((prev) => ({
+  //       ...prev,
+  //       [toolId]: { data: result, loading: false },
+  //     }));
 
-      // Add to history
-      addToHistory({
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        serverId: server.id,
-        type: "tools",
-        title: `Executed Tool: ${tool.name}`,
-        status: "success",
-        details: {
-          server: server.url || `${server.command} ${server.args}`,
-          tool: tool.name,
-          inputs: formValues[toolId],
-          result,
-        },
-      });
-    } catch (error) {
-      setResults((prev) => ({
-        ...prev,
-        [toolId]: {
-          error:
-            error instanceof Error ? error.message : "Failed to execute tool",
-          loading: false,
-        },
-      }));
+  //     // Add to history
+  //     addToHistory({
+  //       id: crypto.randomUUID(),
+  //       timestamp: new Date().toISOString(),
+  //       serverId: server.id,
+  //       type: "tools",
+  //       title: `Executed Tool: ${tool.name}`,
+  //       status: "success",
+  //       details: {
+  //         server: server.url || `${server.command} ${server.args}`,
+  //         tool: tool.name,
+  //         inputs: formValues[toolId],
+  //         result,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     setResults((prev) => ({
+  //       ...prev,
+  //       [toolId]: {
+  //         error:
+  //           error instanceof Error ? error.message : "Failed to execute tool",
+  //         loading: false,
+  //       },
+  //     }));
 
-      // Add to history
-      addToHistory({
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        serverId: server.id,
-        type: "tools",
-        title: `Failed to Execute Tool: ${tool.name}`,
-        status: "error",
-        details: {
-          server: server.url || `${server.command} ${server.args}`,
-          tool: tool.name,
-          inputs: formValues[toolId],
-          error:
-            error instanceof Error ? error.message : "Failed to execute tool",
-        },
-      });
-    }
-  };
+  //     // Add to history
+  //     addToHistory({
+  //       id: crypto.randomUUID(),
+  //       timestamp: new Date().toISOString(),
+  //       serverId: server.id,
+  //       type: "tools",
+  //       title: `Failed to Execute Tool: ${tool.name}`,
+  //       status: "error",
+  //       details: {
+  //         server: server.url || `${server.command} ${server.args}`,
+  //         tool: tool.name,
+  //         inputs: formValues[toolId],
+  //         error:
+  //           error instanceof Error ? error.message : "Failed to execute tool",
+  //       },
+  //     });
+  //   }
+  // };
 
   // Get unique categories
   const categories = tools
-    ? ["all", ...new Set(tools.map((tool) => (tool.annotations?.category as string) || "uncategorized"))]
+    ? [
+        "all",
+        ...new Set(
+          tools.map(
+            (tool) => (tool.annotations?.category as string) || "uncategorized"
+          )
+        ),
+      ]
     : ["all"];
 
   // Filter tools based on search and category
@@ -267,10 +274,13 @@ export function ToolsAction({ server, addToHistory }: ToolsActionProps) {
     ? tools.filter((tool) => {
         const matchesSearch =
           tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (tool.description?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+          (tool.description?.toLowerCase() || "").includes(
+            searchQuery.toLowerCase()
+          );
 
         const matchesCategory =
-          selectedCategory === "all" || (tool.annotations?.category as string) === selectedCategory;
+          selectedCategory === "all" ||
+          (tool.annotations?.category as string) === selectedCategory;
 
         return matchesSearch && matchesCategory;
       })
@@ -361,7 +371,8 @@ export function ToolsAction({ server, addToHistory }: ToolsActionProps) {
                           <div className="flex items-center gap-2">
                             <span>{tool.name}</span>
                             <Badge variant="outline" className="text-xs">
-                              {(tool.annotations?.category as string) || "uncategorized"}
+                              {(tool.annotations?.category as string) ||
+                                "uncategorized"}
                             </Badge>
                           </div>
                           <span className="text-xs text-muted-foreground mt-1">
@@ -391,45 +402,45 @@ export function ToolsAction({ server, addToHistory }: ToolsActionProps) {
                       return (
                         <div className="space-y-4">
                           <div>
-                            <h3 className="font-medium text-lg">
-                              {tool.name}
-                            </h3>
+                            <h3 className="font-medium text-lg">{tool.name}</h3>
                             <p className="text-sm text-muted-foreground">
                               {tool.description || "No description available"}
                             </p>
                           </div>
 
                           <div className="space-y-4">
-                            <h4 className="text-sm font-medium">
-                              Parameters
-                            </h4>
+                            <h4 className="text-sm font-medium">Parameters</h4>
 
-                            {Object.entries(tool.inputSchema.properties || {}).map(
-                              ([propKey, propValue]) => (
-                                <div key={propKey} className="space-y-2">
-                                  <Label htmlFor={`${tool.name}-${propKey}`}>
-                                    {propKey}{" "}
-                                    {tool.inputSchema.required?.includes(propKey) && (
-                                      <span className="text-red-500">*</span>
-                                    )}
-                                  </Label>
-                                  <Input
-                                    id={`${tool.name}-${propKey}`}
-                                    placeholder={typeof propValue === 'object' && propValue !== null ? (propValue as PropertyValue).description || "" : ""}
-                                    value={
-                                      formValues[tool.name]?.[propKey] || ""
-                                    }
-                                    onChange={(e) =>
-                                      handleInputChange(
-                                        tool.name,
-                                        propKey,
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                </div>
-                              )
-                            )}
+                            {Object.entries(
+                              tool.inputSchema.properties || {}
+                            ).map(([propKey, propValue]) => (
+                              <div key={propKey} className="space-y-2">
+                                <Label htmlFor={`${tool.name}-${propKey}`}>
+                                  {propKey}{" "}
+                                  {tool.inputSchema.required?.includes(
+                                    propKey
+                                  ) && <span className="text-red-500">*</span>}
+                                </Label>
+                                <Input
+                                  id={`${tool.name}-${propKey}`}
+                                  placeholder={
+                                    typeof propValue === "object" &&
+                                    propValue !== null
+                                      ? (propValue as PropertyValue)
+                                          .description || ""
+                                      : ""
+                                  }
+                                  value={formValues[tool.name]?.[propKey] || ""}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      tool.name,
+                                      propKey,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </div>
+                            ))}
 
                             {/* <Button
                               onClick={() => executeTool(tool.name)}
@@ -447,27 +458,28 @@ export function ToolsAction({ server, addToHistory }: ToolsActionProps) {
                             </Button> */}
                           </div>
 
-                          {results[tool.name] && !results[tool.name].loading && (
-                            <Accordion
-                              type="single"
-                              collapsible
-                              className="w-full"
-                            >
-                              <AccordionItem value="results">
-                                <AccordionTrigger>Results</AccordionTrigger>
-                                <AccordionContent>
-                                  <pre className="bg-muted p-4 rounded-md text-xs font-mono whitespace-pre-wrap">
-                                    {JSON.stringify(
-                                      results[tool.name].data ||
-                                        results[tool.name].error,
-                                      null,
-                                      2
-                                    )}
-                                  </pre>
-                                </AccordionContent>
-                              </AccordionItem>
-                            </Accordion>
-                          )}
+                          {results[tool.name] &&
+                            !results[tool.name].loading && (
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="w-full"
+                              >
+                                <AccordionItem value="results">
+                                  <AccordionTrigger>Results</AccordionTrigger>
+                                  <AccordionContent>
+                                    <pre className="bg-muted p-4 rounded-md text-xs font-mono whitespace-pre-wrap">
+                                      {JSON.stringify(
+                                        results[tool.name].data ||
+                                          results[tool.name].error,
+                                        null,
+                                        2
+                                      )}
+                                    </pre>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            )}
                         </div>
                       );
                     })()

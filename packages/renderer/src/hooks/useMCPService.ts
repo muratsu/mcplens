@@ -12,17 +12,6 @@ interface TransportConfig {
 
 type MCPMessage = any;
 
-// Define the window interface for TypeScript
-declare global {
-  interface Window {
-    createMCPSession: (config: TransportConfig) => Promise<{ sessionId: string }>;
-    sendMCPMessage: (sessionId: string, message: MCPMessage) => Promise<any>;
-    closeMCPSession: (sessionId: string) => Promise<boolean>;
-    getMCPConfig: () => Promise<any>;
-    onMCPMessage: (callback: (data: { sessionId: string; message: MCPMessage }) => void) => () => void;
-  }
-}
-
 interface UseMCPServiceReturn {
   createSession: (config: TransportConfig) => Promise<{ sessionId: string }>;
   sendMessage: (sessionId: string, message: MCPMessage) => Promise<any>;
