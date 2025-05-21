@@ -13,6 +13,10 @@ export default /** @type import('electron-builder').Configuration */
   linux: {
     target: ['deb'],
   },
+  onNodeModuleFile: filePath => {
+    // Force include this directory in the package
+    return filePath.includes(`node_modules/ai/test`) || filePath.includes(`node_modules/@ai-sdk/provider-utils/test`)
+  },
   /**
    * It is recommended to avoid using non-standard characters such as spaces in artifact names,
    * as they can unpredictably change during deployment, making them impossible to locate and download for update.

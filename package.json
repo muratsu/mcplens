@@ -34,7 +34,7 @@
     "@playwright/test": "1.52.0",
     "@types/node": "22.15.18",
     "electron": "36.2.0",
-    "electron-builder": "26.0.12",
+    "electron-builder": "^26.0.15",
     "glob": "11.0.2",
     "playwright": "^1.52.0"
   },
